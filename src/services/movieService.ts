@@ -8,12 +8,13 @@ if (!TOKEN) {
   throw new Error('TMDB API token is missing in environment variables.');
 }
 
-export const fetchMovies = async (
-  query: string,
-  page = 1
-): Promise<MovieApiResponse> => {
+interface MovieResponse {
+  results: Movie[];
+}
+
+export const fetchMovies = async (query: string): Promise<Movie[]> => {
   try {
-    const response = await axios.get(`${BASE_URL}/search/movie`, {
+    const response = await axios.get<MovieResponse>(`${BASE_URL}/search/movie`, {
       params: {
         query,
         include_adult: false,
@@ -24,11 +25,12 @@ export const fetchMovies = async (
       },
     });
 
-    return response.data;
+    return response.data.results;
   } catch (error) {
     console.error('Error fetching movies:', error);
     throw new Error('Failed to fetch movies.');
   }
 };
+
 
 
