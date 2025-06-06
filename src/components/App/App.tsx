@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Movie } from '../../types/movie';
 import { fetchMovies } from '../../services/movieService';
-
 import SearchBar from '../SearchBar';
 import MovieGrid from '../MovieGrid';
 import Loader from '../Loader';
@@ -13,7 +12,10 @@ import toast, { Toaster } from 'react-hot-toast';
 const App = () => {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!query.trim()) return;
@@ -24,7 +26,7 @@ const App = () => {
         setError(false);
         setMovies([]);
 
-        const results = await fetchMovies(query);
+        const results = await fetchMovies(query, page);
 
         if (results.length === 0) {
           toast('No movies found for your request.');
@@ -40,7 +42,7 @@ const App = () => {
     };
 
     fetchData();
-  }, [query]);
+  }, [query, page]);
 
   const handleSearch = (formData: FormData) => {
     const newQuery = formData.get('query')?.toString().trim() || '';
@@ -60,8 +62,7 @@ const App = () => {
     setSelectedMovie(null);
   };
 
-  const shouldShowGrid =
-    !isLoading && !isError && data && data.results.length > 0;
+  const shouldShowGrid = !loading && !error && movies.length > 0;
 
   return (
     <div>
@@ -78,6 +79,7 @@ const App = () => {
 };
 
 export default App;
+
 
 
 
